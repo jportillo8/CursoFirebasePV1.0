@@ -25,6 +25,6 @@
             android:name="TraderActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-    ></application>
+    </application>
 
 </manifest>
