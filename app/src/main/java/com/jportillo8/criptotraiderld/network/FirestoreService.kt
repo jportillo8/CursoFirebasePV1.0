@@ -1,5 +1,6 @@
 package com.jportillo8.criptotraiderld.network
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jportillo8.criptotraiderld.model.Crypto
 import com.jportillo8.criptotraiderld.model.User
@@ -17,6 +18,7 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
         firebaseFirestore.collection(collectionName).document(id).set(data)
             .addOnSuccessListener { callback.onSucess(null) }
             .addOnFailureListener { exception -> callback.onFailed(exception) }
+        Log.i("FirestoreService",id)
     }
 
     //Esta funcion nos permite actulizar el user
