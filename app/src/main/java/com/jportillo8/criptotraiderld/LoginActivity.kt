@@ -55,8 +55,10 @@ class LoginActivity : AppCompatActivity() {
                         if (result == null) {
                             val user = User()
                             user.username = username
+                            Log.i("Usuario no registrado",username)
                             saveUserAndStartMainActivity(user, view)
                         }else
+                            Log.i("Usuario encontrado",username)
                             startMainActivity(username)
                     }
 
