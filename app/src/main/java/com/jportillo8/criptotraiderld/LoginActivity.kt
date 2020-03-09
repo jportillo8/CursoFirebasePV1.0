@@ -13,8 +13,6 @@ import com.jportillo8.criptotraiderld.network.Callback
 import com.jportillo8.criptotraiderld.network.FirestoreService
 import com.jportillo8.criptotraiderld.network.USER_COLLECTION_NAME
 import kotlinx.android.synthetic.main.activity_login.*
-import java.lang.Exception
-import kotlin.math.log
 
 /**
  * @author Santiago Carrillo
@@ -51,10 +49,27 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful){
 
                 val username = username.text.toString()
+                //7. Lectura de Datos
+                firestoresService.findUserById(username, object : Callback<User> {
+                    override fun onSucess(result: User?) {
+                        if (result == null) {
+                            val user = User()
+                            user.username = username
+                            saveUserAndStartMainActivity(user, view)
+                        }else
+                            startMainActivity(username)
+                    }
+
+                    override fun onFailed(exception: Exception) {
+                        showErrorMessage(view)
+                    }
+
+                })//7.0
+
                 //5.Modificacion para la escritura en la base de Datos
-                val user = User()
+                /*val user = User()
                 user.username = username
-                saveUserAndStartMainActivity(user, view)
+                saveUserAndStartMainActivity(user, view)*/
             }else{
                 showErrorMessage(view)
                 view.isEnabled = true

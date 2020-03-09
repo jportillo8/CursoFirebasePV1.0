@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jportillo8.criptotraiderld.model.Crypto
 import com.jportillo8.criptotraiderld.model.User
+import java.lang.Exception
 
 //Acceso a los nombres de la collecciones
 const val CRYPTO_COLLECTION_NAME = "cryptos"
@@ -37,4 +38,31 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
             .update("available", crypto.available)
     }
 
+    //7.0 Colsutando lista de criptomonedas, hace la lectura de las criptomonedas
+    fun getCryptos(callback: Callback<List<Crypto>>?) {
+        firebaseFirestore.collection(CRYPTO_COLLECTION_NAME)
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result){
+                    val cryptoList = result.toObjects(Crypto::class.java)
+                    callback!!.onSucess(cryptoList)
+                    break
+                }
+            }
+            .addOnFailureListener { exception -> callback!!.onFailed(exception)  }
+    }
+    //Encontrando los usuarios dependiendo del id
+    fun findUserById(id: String, callback: Callback<User>){
+        firebaseFirestore.collection(USER_COLLECTION_NAME).document(id)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.data != null){
+                    callback.onSucess(result.toObject(User::class.java))
+                }else{
+                    callback.onSucess(null)
+                }
+            }
+            .addOnFailureListener { exception -> callback.onFailed(exception)  }
+    }
+    ///7.0
 }
