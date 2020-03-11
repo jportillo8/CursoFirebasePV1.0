@@ -3,6 +3,7 @@ package com.jportillo8.criptotraiderld.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +22,7 @@ class CryptosAdapter (val cryptoAdapterListener: CryptoAdapterListener): Recycle
         var image = view.findViewById<ImageView>(R.id.image)
         var name = view.findViewById<TextView>(R.id.nameTextView)
         var available = view.findViewById<TextView>(R.id.availableTextView)
-        var buyButton = view.findViewById<ImageView>(R.id.buyButton)
+        var buyButton = view.findViewById<TextView>(R.id.buyButton)
     }
     //13.
 
