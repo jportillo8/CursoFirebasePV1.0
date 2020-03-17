@@ -23,14 +23,14 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
     }
 
     //Esta funcion nos permite actulizar el user
-    fun updateUser(user: User, callback: Callback<User>) {
+    fun updateUser(user: User, callback: Callback<User>?) {
         firebaseFirestore.collection(CRYPTO_COLLECTION_NAME).document(user.username)
             .update("cryptoList", user.cryptosList)
             .addOnSuccessListener { result ->
                 if (callback != null)
                     callback.onSucess(user)
             }
-            .addOnFailureListener { exception -> callback.onFailed(exception) }
+            .addOnFailureListener { exception -> callback?.onFailed(exception) }
     }
     //Esta funcion nos permite actulizar el crypto
     fun updateCrypto(crypto: Crypto){
@@ -65,4 +65,6 @@ class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
             .addOnFailureListener { exception -> callback.onFailed(exception)  }
     }
     ///7.0
+
+
 }

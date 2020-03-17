@@ -3,14 +3,12 @@ package com.jportillo8.criptotraiderld.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.jportillo8.criptotraiderld.R
 import com.jportillo8.criptotraiderld.model.Crypto
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_login.view.*
 
 class CryptosAdapter (val cryptoAdapterListener: CryptoAdapterListener): RecyclerView.Adapter<CryptosAdapter.ViewHolder>(){
 
@@ -26,7 +24,7 @@ class CryptosAdapter (val cryptoAdapterListener: CryptoAdapterListener): Recycle
     }
     //13.
 
-    //Implementacon de los metodos del adapter
+    //13. Implementacon de los metodos del adapter
     // El onCreateViewHolder va a crear el ViewHolder que definimos basado en la vista de row
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
        val view = LayoutInflater.from(parent.context).inflate(R.layout.crypto_row, parent, false)
@@ -49,7 +47,7 @@ class CryptosAdapter (val cryptoAdapterListener: CryptoAdapterListener): Recycle
         }
 
     }
-
+//13...
 
 
 }
