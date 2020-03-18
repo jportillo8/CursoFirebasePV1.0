@@ -9,12 +9,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
-import com.jportillo8.criptotraiderld.adapter.CryptoAdapterListener
+import com.google.firebase.firestore.core.UserData
+import com.jportillo8.criptotraiderld.adapter.CryptosAdapterListener
 import com.jportillo8.criptotraiderld.adapter.CryptosAdapter
 import com.jportillo8.criptotraiderld.model.Crypto
 import com.jportillo8.criptotraiderld.model.User
 import com.jportillo8.criptotraiderld.network.Callback
 import com.jportillo8.criptotraiderld.network.FirestoreService
+import com.jportillo8.criptotraiderld.network.RealtimeDataListener
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_trader.*
 
@@ -23,7 +25,7 @@ import kotlinx.android.synthetic.main.activity_trader.*
  * @author Santiago Carrillo
  * 2/14/19.
  */
-class TraderActivity : AppCompatActivity(), CryptoAdapterListener {
+class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
 
     //14.Deficion de una instancia
     lateinit var firestoreService: FirestoreService
@@ -56,9 +58,18 @@ class TraderActivity : AppCompatActivity(), CryptoAdapterListener {
         fab.setOnClickListener { view ->
             Snackbar.make(view, "generating new cryptos", Snackbar.LENGTH_SHORT)
                 .setAction("info",null).show()
+            generateCryptoCurrenciesRandom()
         }
 
 
+    }
+
+    private fun generateCryptoCurrenciesRandom() {
+        for(crypto in cryptosAdapter.cryptoList){
+            val amount = (1..10).random()
+            crypto.available += amount
+            firestoreService.updateCrypto(crypto)
+        }
     }
 
     //14.
@@ -87,19 +98,25 @@ class TraderActivity : AppCompatActivity(), CryptoAdapterListener {
                         }
                         //Para que cargue la lista en el panel de informacion
                         loadUserCriptos()
-                    }
+                        addRealtimeDatabaseListeners(user!!, cryptoList!!)
 
-                    override fun onFailed(exception: java.lang.Exception) {
+                    }
+                    override fun onFailed(exception: Exception) {
+                        Log.e("TraiderActivity", "error loading criptos", exception)
                         showGeneralServerErrorMessage()
                     }
 
                 })
                 //15.........^^^^^^
 
+
+
                 this@TraderActivity.runOnUiThread{
                     cryptosAdapter.cryptoList = cryptoList!!
                     cryptosAdapter.notifyDataSetChanged()
                 }
+
+
             }
 
             override fun onFailed(exception: Exception) {
@@ -109,6 +126,40 @@ class TraderActivity : AppCompatActivity(), CryptoAdapterListener {
 
         })
     }
+
+    //16..Implementacion
+    private fun addRealtimeDatabaseListeners(user: User, cryptoList: List<Crypto>) {
+        firestoreService.listenForUpdatesX(user, object : RealtimeDataListener<User>{
+            override fun onDataChange(updatedData: User) {
+                //Actulizaremos el usuario
+                this@TraderActivity.user = updatedData
+                loadUserCriptos()
+            }
+
+            override fun onError(exception: Exception) {
+                showGeneralServerErrorMessage()
+            }
+
+        })
+        firestoreService.listenForUpdates(cryptoList, object : RealtimeDataListener<Crypto>{
+            override fun onDataChange(updatedData: Crypto) {
+                var pos = 0
+                for (crypto in cryptosAdapter.cryptoList){
+                    if (crypto.name.equals(updatedData.name)){
+                        crypto.available = updatedData.available
+                        cryptosAdapter.notifyItemChanged(pos)
+                    }
+                    pos++
+                }
+            }
+
+            override fun onError(exception: Exception) {
+                showGeneralServerErrorMessage()
+            }
+
+        })
+    }
+    //16....
 
     //15 Funcion Para que cargue la lista en el panel de informacion
     private fun loadUserCriptos() {
@@ -126,7 +177,8 @@ class TraderActivity : AppCompatActivity(), CryptoAdapterListener {
 
     private fun addUserCryptoInfoRow(crypto: Crypto) {
         val  view = LayoutInflater.from(this).inflate(R.layout.coin_info, infoPanel,false)
-        view.findViewById<TextView>(R.id.coinLabel).text = getString(R.string.coin_info, crypto.name, crypto.available.toString())
+        view.findViewById<TextView>(R.id.coinLabel).text =
+            getString(R.string.coin_info, crypto.name, crypto.available.toString())
         Picasso.get().load(crypto.imageUrl).into(view.findViewById<ImageView>(R.id.coinIcon))
         infoPanel.addView(view)
     }
@@ -147,17 +199,19 @@ class TraderActivity : AppCompatActivity(), CryptoAdapterListener {
 
     //16. Entra aqui cuando le de click a la compra de cripto monedas
     override fun onBuyCryptoClicked(crypto: Crypto) {
-        if (crypto.available > 0){
-            for (userCrypto in user!!.cryptosList!!){
-                if (userCrypto.name == crypto.name){
+        if (crypto.available > 0) {
+            for (userCrypto in user!!.cryptosList!!) {
+                if (userCrypto.name == crypto.name) {
                     userCrypto.available += 1
                     break
                 }
             }
             crypto.available--
+
             firestoreService.updateUser(user!!, null)
             firestoreService.updateCrypto(crypto)
         }
+
     }
 //16....
 
